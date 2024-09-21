@@ -27,11 +27,14 @@ class TextureUnpacker(object):
         else:
             save = os.path.abspath(save)
 
-        dt = plistlib.readPlist(plist)
+        # dt = plistlib.readPlist(plist)
+        with open(plist, 'rb') as fp :
+            dt = plistlib.loads(fp.read())
         metadata, frames = dt['metadata'], dt['frames']
         format_version = metadata['format']
         big_img = Image.open(metadata['realTextureFileName'])
-        for frame, info in frames.iteritems():
+        # for frame, info in frames.iteritems():
+        for frame, info in frames.items():
             if format_version == 2:
                 info = cls.parse_as_plist_v2(info)
             elif format_version == 3:
@@ -47,7 +50,8 @@ class TextureUnpacker(object):
         if info['rotated']:
             # region = region.rotate(90, expand=1)
             region = region.transpose(Image.ROTATE_90)
-        little_img.paste(region, info['xy'])
+        # little_img.paste(region, info['xy'])
+        little_img.paste(region, [int(info['xy'][0]), int(info['xy'][1])])
         dir_ = os.path.dirname(path)
         if not os.path.exists(dir_):
             os.makedirs(dir_)
